@@ -1,0 +1,23 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.env*
+.tanstack
+.wrangler
+.output
+.vinxi
+__unconfig*
+todos.json
+
+# python
+__pycache__/
+*.pyc
+.venv
+
+# typescript
+*.tsbuildinfo
+opencode/share/
+.pnpm-store/
+data

@@ -1,0 +1,56 @@
+services:
+  opencode:
+    build: .
+    ports:
+      - ${PORT:-4096}:4096
+    volumes:
+      - ./:${PWD:-/opencode}
+      # - ./opencode/cache/:/home/node/.cache/opencode/
+      - ./opencode/share/:/home/node/.local/share/opencode
+      - ./opencode/opencode.json:/home/node/.config/opencode/opencode.json
+    extra_hosts:
+      - host.docker.internal:172.17.0.1
+    user: "${UID:-1000}:${GID:-1000}"
+
+    # cp example.env .env
+    env_file: .env
+    entrypoint: ["/home/node/.opencode/bin/opencode", "serve", "--hostname", "0.0.0.0"]
+
+    environment:
+      OPENCODE_DISABLE_AUTOUPDATE: 1
+      OPENCODE_DISABLE_SHARE: 1
+      OPENCODE_DISABLE_MODELS_FETCH: 1
+      OPENCODE_DISABLE_METRICS: 1
+  recipes:
+    image: node:26
+    ports:
+      - ${RECIPES_PORT:-3000}:3000
+    volumes:
+      - ./:${PWD:-/opencode}
+    depends_on:
+      - backend
+    environment:
+      # Vite's dev proxy runs server-side, so it must reach the backend
+      # container over the compose network rather than localhost.
+      VITE_API_PROXY_TARGET: http://backend:8001
+    command:
+      - "bash"
+      - "-c"
+      -   |-
+          cd "${PWD:-/opencode}"
+          npm i -g pnpm
+          pnpm i
+          pnpm dev --host
+  backend:
+    image: python:3.13-slim
+    ports:
+      - ${BACKEND_PORT:-8001}:8001
+    volumes:
+      - ./:${PWD:-/opencode}
+    command:
+      - "bash"
+      - "-c"
+      -   |-
+          cd "${PWD:-/opencode}/backend"
+          pip install uv
+          uv run uvicorn main:app --reload --host 0.0.0.0 --port 8001

@@ -1,0 +1,9 @@
+packages: []
+
+allowBuilds:
+  esbuild: true
+  lightningcss: true
+  unrs-resolver: true
+  msw: false
+  better-sqlite3: true
+  sqlite3: true

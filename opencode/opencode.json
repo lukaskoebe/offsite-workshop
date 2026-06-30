@@ -1,0 +1,57 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "enabled_providers": [
+    "ask-ai"
+  ],
+  "model": "ask-ai/vllm/coding",
+  "provider": {
+    "ask-ai": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "ask-ai",
+      "options": {
+        "baseURL": "https://ask-ai.smartclip.net/api",
+        "apiKey": "{env:ASKAI_API_TOKEN}"
+      },
+      "models": {
+        "vllm/generic": {
+          "name": "Generic",
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
+        } ,
+        "vllm/coding": {
+          "name": "Coder",
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
+        },
+        "vllm/deepseek": {
+          "name": "Deepseek",
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+
