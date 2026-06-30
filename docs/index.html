@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipe Book Workshop · Mac Setup</title>
+    <meta
+      name="description"
+      content="Get your Mac ready for the Recipe Book workshop — install Git and Docker, then run the app in one command."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: oklch(0.99 0.004 325);
+        --bg-soft: oklch(0.97 0.006 325);
+        --card: oklch(1 0 0);
+        --fg: oklch(0.21 0.019 322);
+        --muted: oklch(0.52 0.034 322);
+        --primary: oklch(0.42 0.05 322);
+        --accent: oklch(0.62 0.12 350);
+        --border: oklch(0.91 0.008 325);
+        --ring: oklch(0.71 0.019 323);
+        --code-bg: oklch(0.21 0.019 322);
+        --code-fg: oklch(0.95 0.005 325);
+        --shadow: 0 1px 2px rgba(40, 20, 40, 0.04),
+          0 12px 32px -12px rgba(60, 30, 60, 0.18);
+        --radius: 20px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        color: var(--fg);
+        background: var(--bg);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .font-serif {
+        font-family: "EB Garamond", Georgia, serif;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      /* ---------- Hero ---------- */
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 5rem 1.5rem 7rem;
+        text-align: center;
+        color: oklch(0.98 0.005 325);
+        background:
+          radial-gradient(
+            120% 90% at 50% -10%,
+            oklch(0.55 0.13 350) 0%,
+            oklch(0.34 0.06 322) 55%,
+            oklch(0.24 0.03 322) 100%
+          );
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(
+          rgba(255, 255, 255, 0.07) 1px,
+          transparent 1px
+        );
+        background-size: 22px 22px;
+        mask-image: linear-gradient(to bottom, black, transparent);
+        pointer-events: none;
+      }
+
+      .hero__inner {
+        position: relative;
+        max-width: 720px;
+        margin: 0 auto;
+        z-index: 1;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.9rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+      }
+
+      .hero h1 {
+        font-size: clamp(2.5rem, 7vw, 4.25rem);
+        line-height: 1.05;
+        font-weight: 700;
+        margin: 1.4rem 0 0.8rem;
+        letter-spacing: -0.01em;
+      }
+
+      .hero p {
+        font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+        color: rgba(255, 255, 255, 0.82);
+        margin: 0 auto;
+        max-width: 32rem;
+      }
+
+      .hero__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem 1.4rem;
+        justify-content: center;
+        margin-top: 2rem;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .hero__meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      /* ---------- Layout ---------- */
+      .container {
+        max-width: 760px;
+        margin: -4rem auto 0;
+        padding: 0 1.5rem 5rem;
+        position: relative;
+        z-index: 2;
+      }
+
+      .intro {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem 1.75rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 2.5rem;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .intro .emoji {
+        font-size: 1.6rem;
+        line-height: 1.4;
+      }
+
+      .intro p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.97rem;
+      }
+
+      .intro strong {
+        color: var(--fg);
+      }
+
+      /* ---------- Steps ---------- */
+      .step {
+        position: relative;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.75rem 1.75rem 1.85rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+      }
+
+      .step__head {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.4rem;
+      }
+
+      .step__num {
+        flex-shrink: 0;
+        width: 2.5rem;
+        height: 2.5rem;
+        display: grid;
+        place-items: center;
+        font-family: "EB Garamond", serif;
+        font-weight: 700;
+        font-size: 1.35rem;
+        color: #fff;
+        border-radius: 14px;
+        background: linear-gradient(
+          145deg,
+          var(--accent),
+          oklch(0.42 0.07 330)
+        );
+        box-shadow: 0 6px 14px -6px oklch(0.55 0.13 350 / 0.7);
+      }
+
+      .step__title {
+        font-family: "EB Garamond", serif;
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+
+      .step__body {
+        color: var(--muted);
+        font-size: 0.97rem;
+      }
+
+      .step__body p {
+        margin: 0.6rem 0;
+      }
+
+      .step__body ul {
+        margin: 0.6rem 0;
+        padding-left: 1.2rem;
+      }
+
+      .step__body li {
+        margin: 0.3rem 0;
+      }
+
+      kbd {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82em;
+        background: var(--bg-soft);
+        border: 1px solid var(--border);
+        border-bottom-width: 2px;
+        border-radius: 6px;
+        padding: 0.1rem 0.4rem;
+        color: var(--fg);
+      }
+
+      /* ---------- Code blocks ---------- */
+      .code {
+        position: relative;
+        margin: 1rem 0 0.25rem;
+        background: var(--code-bg);
+        border-radius: 14px;
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .code pre {
+        margin: 0;
+        padding: 1rem 3.2rem 1rem 1.1rem;
+        overflow-x: auto;
+        flex: 1;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.86rem;
+        line-height: 1.7;
+        color: var(--code-fg);
+      }
+
+      .code pre .prompt {
+        color: oklch(0.7 0.13 350);
+        user-select: none;
+      }
+
+      .code pre .comment {
+        color: oklch(0.62 0.02 322);
+      }
+
+      .copy {
+        position: absolute;
+        top: 0.6rem;
+        right: 0.6rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-family: "Inter", sans-serif;
+        font-size: 0.74rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.75);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 0.35rem 0.6rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .copy:hover {
+        background: rgba(255, 255, 255, 0.16);
+        color: #fff;
+      }
+
+      .copy.copied {
+        background: oklch(0.62 0.14 150 / 0.25);
+        border-color: oklch(0.7 0.14 150 / 0.5);
+        color: oklch(0.9 0.1 150);
+      }
+
+      /* ---------- Callouts ---------- */
+      .note {
+        margin-top: 1rem;
+        padding: 0.85rem 1rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        display: flex;
+        gap: 0.65rem;
+        align-items: flex-start;
+        background: var(--bg-soft);
+        border: 1px solid var(--border);
+        color: var(--muted);
+      }
+
+      .note.warn {
+        background: oklch(0.97 0.04 70);
+        border-color: oklch(0.85 0.08 70);
+        color: oklch(0.42 0.06 60);
+      }
+
+      .note .ico {
+        font-size: 1.05rem;
+        line-height: 1.4;
+      }
+
+      /* ---------- Finish ---------- */
+      .finish {
+        margin-top: 2.5rem;
+        text-align: center;
+        background: linear-gradient(
+          145deg,
+          oklch(0.97 0.02 340),
+          oklch(0.95 0.03 320)
+        );
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 2.5rem 1.75rem;
+        box-shadow: var(--shadow);
+      }
+
+      .finish h2 {
+        font-family: "EB Garamond", serif;
+        font-size: 2rem;
+        margin: 0.5rem 0 0.4rem;
+      }
+
+      .finish p {
+        color: var(--muted);
+        margin: 0 auto;
+        max-width: 26rem;
+      }
+
+      .finish a.cta {
+        display: inline-block;
+        margin-top: 1.4rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #fff;
+        text-decoration: none;
+        background: var(--primary);
+        padding: 0.8rem 1.6rem;
+        border-radius: 999px;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        box-shadow: 0 10px 24px -10px oklch(0.42 0.05 322 / 0.8);
+      }
+
+      .finish a.cta:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px -10px oklch(0.42 0.05 322 / 0.9);
+      }
+
+      /* ---------- Troubleshooting ---------- */
+      .trouble {
+        margin-top: 2.5rem;
+      }
+
+      .trouble > h2 {
+        font-family: "EB Garamond", serif;
+        font-size: 1.7rem;
+        margin-bottom: 0.75rem;
+      }
+
+      details {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 0.4rem 1.1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 500;
+        padding: 0.7rem 0;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      summary::-webkit-details-marker {
+        display: none;
+      }
+
+      summary::after {
+        content: "+";
+        font-size: 1.3rem;
+        color: var(--muted);
+        transition: transform 0.2s ease;
+      }
+
+      details[open] summary::after {
+        transform: rotate(45deg);
+      }
+
+      details .answer {
+        padding: 0 0 0.9rem;
+        color: var(--muted);
+        font-size: 0.93rem;
+      }
+
+      footer {
+        text-align: center;
+        padding: 2.5rem 1.5rem 3.5rem;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      footer .font-serif {
+        font-size: 1.05rem;
+        color: var(--fg);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: oklch(0.17 0.012 322);
+          --bg-soft: oklch(0.22 0.018 322);
+          --card: oklch(0.21 0.019 322);
+          --fg: oklch(0.96 0.005 325);
+          --muted: oklch(0.72 0.02 323);
+          --border: oklch(1 0 0 / 0.1);
+          --code-bg: oklch(0.13 0.012 322);
+        }
+        .note.warn {
+          background: oklch(0.28 0.04 70);
+          border-color: oklch(0.4 0.06 70);
+          color: oklch(0.88 0.06 80);
+        }
+        .finish {
+          background: linear-gradient(
+            145deg,
+            oklch(0.24 0.03 340),
+            oklch(0.22 0.03 320)
+          );
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__inner">
+        <span class="badge">🍳 Recipe Book Workshop</span>
+        <h1 class="font-serif">Let's get your Mac ready</h1>
+        <p>
+          A quick, copy-paste setup. Install two tools, run one command, and
+          you'll have the app running locally — no prior experience needed.
+        </p>
+        <div class="hero__meta">
+          <span>⏱️ ~15 minutes</span>
+          <span>💻 macOS (Apple Silicon &amp; Intel)</span>
+          <span>📋 Just copy &amp; paste</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="intro">
+        <span class="emoji">👋</span>
+        <p>
+          Everything happens in the <strong>Terminal</strong> app. Each step has
+          a <strong>Copy</strong> button — paste the command into Terminal and
+          press <kbd>Return</kbd>. Work through the steps in order. If anything
+          looks off, check the
+          <a href="#troubleshooting">troubleshooting</a> section at the bottom.
+        </p>
+      </div>
+
+      <!-- Step 1 -->
+      <section class="step">
+        <div class="step__head">
+          <div class="step__num">1</div>
+          <h2 class="step__title font-serif">Open the Terminal</h2>
+        </div>
+        <div class="step__body">
+          <p>
+            Press <kbd>⌘</kbd> + <kbd>Space</kbd> to open Spotlight, type
+            <strong>Terminal</strong>, and press <kbd>Return</kbd>. A window with
+            a text prompt will appear — that's where every command below goes.
+          </p>
+        </div>
+      </section>
+
+      <!-- Step 2 -->
+      <section class="step">
+        <div class="step__head">
+          <div class="step__num">2</div>
+          <h2 class="step__title font-serif">Install Homebrew</h2>
+        </div>
+        <div class="step__body">
+          <p>
+            Homebrew is the package manager we'll use to install Git and Docker.
+            Paste this and press <kbd>Return</kbd>. It may ask for your Mac
+            password (typing stays invisible — that's normal).
+          </p>
+          <div class="code">
+            <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
+            <button class="copy" type="button">Copy</button>
+          </div>
+          <div class="note warn">
+            <span class="ico">🍎</span>
+            <span>
+              <strong>Apple Silicon (M1–M4):</strong> when it finishes, Homebrew
+              prints two <em>“Next steps”</em> lines starting with
+              <kbd>echo</kbd>. Copy and run those so the <kbd>brew</kbd> command
+              is found. (On Intel Macs you can skip this.)
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 3 -->
+      <section class="step">
+        <div class="step__head">
+          <div class="step__num">3</div>
+          <h2 class="step__title font-serif">Install Git</h2>
+        </div>
+        <div class="step__body">
+          <p>Git lets you download (“clone”) the workshop project.</p>
+          <div class="code">
+            <pre><code>brew install git</code></pre>
+            <button class="copy" type="button">Copy</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 4 -->
+      <section class="step">
+        <div class="step__head">
+          <div class="step__num">4</div>
+          <h2 class="step__title font-serif">Install Docker Desktop</h2>
+        </div>
+        <div class="step__body">
+          <p>
+            Docker runs the app and its backend for you — no other setup
+            required.
+          </p>
+          <div class="code">
+            <pre><code>brew install --cask docker</code></pre>
+            <button class="copy" type="button">Copy</button>
+          </div>
+          <div class="note">
+            <span class="ico">🐳</span>
+            <span>
+              After it installs, open <strong>Docker Desktop</strong> from your
+              Applications folder once and leave it running. Wait until the whale
+              icon in the menu bar stops animating — that means the engine is
+              ready.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 5 -->
+      <section class="step">
+        <div class="step__head">
+          <div class="step__num">5</div>
+          <h2 class="step__title font-serif">Download the project</h2>
+        </div>
+        <div class="step__body">
+          <p>
+            This copies the workshop repository into a folder on your Mac (in
+            your home directory).
+          </p>
+          <div class="code">
+            <pre><code>git clone https://github.com/lukaskoebe/offsite-workshop.git</code></pre>
+            <button class="copy" type="button">Copy</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 6 -->
+      <section class="step">
+        <div class="step__head">
+          <div class="step__num">6</div>
+          <h2 class="step__title font-serif">Start the app</h2>
+        </div>
+        <div class="step__body">
+          <p>
+            Move into the project folder and start everything. The first run
+            downloads a few things, so give it a couple of minutes.
+          </p>
+          <div class="code">
+            <pre><code><span class="prompt">cd</span> offsite-workshop
+docker compose up</code></pre>
+            <button class="copy" type="button">Copy</button>
+          </div>
+          <p>
+            When you see the log lines settle and mention
+            <kbd>VITE ready</kbd>, the app is up. Leave this window running
+            during the workshop.
+          </p>
+        </div>
+      </section>
+
+      <div class="finish">
+        <span style="font-size: 2.2rem">🎉</span>
+        <h2 class="font-serif">You're all set!</h2>
+        <p>
+          Open your browser and visit the app. Keep the Terminal window open —
+          closing it stops the app.
+        </p>
+        <a class="cta" href="http://localhost:3000" target="_blank" rel="noopener"
+          >Open http://localhost:3000</a
+        >
+      </div>
+
+      <!-- Troubleshooting -->
+      <section class="trouble" id="troubleshooting">
+        <h2 class="font-serif">Troubleshooting</h2>
+
+        <details>
+          <summary><kbd>brew: command not found</kbd></summary>
+          <div class="answer">
+            Homebrew installed, but your shell can't find it yet (common on Apple
+            Silicon). Run the two <kbd>echo</kbd> lines Homebrew printed at the
+            end of Step 2, then close and reopen Terminal. If you missed them,
+            run:
+            <div class="code">
+              <pre><code>echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"</code></pre>
+              <button class="copy" type="button">Copy</button>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary><kbd>Cannot connect to the Docker daemon</kbd></summary>
+          <div class="answer">
+            Docker Desktop isn't running. Open it from your Applications folder
+            and wait for the whale icon in the menu bar to stop animating, then
+            run <kbd>docker compose up</kbd> again.
+          </div>
+        </details>
+
+        <details>
+          <summary>Port 3000 is already in use</summary>
+          <div class="answer">
+            Another program is using that port. Stop it, or stop the app with
+            <kbd>Control</kbd> + <kbd>C</kbd> in the Terminal and try again.
+          </div>
+        </details>
+
+        <details>
+          <summary>How do I stop the app?</summary>
+          <div class="answer">
+            Click the Terminal window running the app and press
+            <kbd>Control</kbd> + <kbd>C</kbd>. To start it again later, run
+            <kbd>cd offsite-workshop</kbd> then <kbd>docker compose up</kbd>.
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <footer>
+      <p class="font-serif">See you at the workshop 🍴</p>
+      <p>Recipe Book · Mac setup guide</p>
+    </footer>
+
+    <script>
+      document.querySelectorAll(".copy").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const code = btn.parentElement.querySelector("code");
+          const text = code.innerText.trim();
+          try {
+            await navigator.clipboard.writeText(text);
+          } catch {
+            const r = document.createRange();
+            r.selectNodeContents(code);
+            const sel = getSelection();
+            sel.removeAllRanges();
+            sel.addRange(r);
+            document.execCommand("copy");
+            sel.removeAllRanges();
+          }
+          const label = btn.textContent;
+          btn.textContent = "✓ Copied";
+          btn.classList.add("copied");
+          setTimeout(() => {
+            btn.textContent = label;
+            btn.classList.remove("copied");
+          }, 1600);
+        });
+      });
+    </script>
+  </body>
+</html>
