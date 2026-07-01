@@ -5,6 +5,7 @@ Run with:  uv run uvicorn main:app --reload --port 8001
 """
 
 import json
+import os
 import sqlite3
 from pathlib import Path
 from typing import Literal
@@ -12,9 +13,21 @@ from typing import Literal
 from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel, Field
 
-DB_PATH = Path(__file__).resolve().parent.parent / "data" / "recipes.db"
+# Override with RECIPES_DB_PATH (used by tests to point at a temp database).
+DB_PATH = Path(
+    os.environ.get(
+        "RECIPES_DB_PATH",
+        Path(__file__).resolve().parent.parent / "data" / "recipes.db",
+    )
+)
 
-app = FastAPI(title="Recipe Book API")
+# Serve the interactive API docs under /api so they're reachable through the
+# Vite dev proxy (http://localhost:3000/api/docs).
+app = FastAPI(
+    title="Recipe Book API",
+    docs_url="/api/docs",
+    openapi_url="/api/openapi.json",
+)
 
 
 class RecipeInput(BaseModel):

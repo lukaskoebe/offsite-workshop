@@ -11,6 +11,7 @@ import {
 import { deleteRecipe, getRecipe } from "@/lib/api"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/recipes/$recipeId")({
   loader: async ({ params: { recipeId } }) => {
     return await getRecipe(Number(recipeId))
   },
+  pendingComponent: RecipeDetailPending,
   notFoundComponent: () => (
     <div className="mx-auto max-w-3xl px-4 py-16 text-center">
       <h1 className="font-heading text-2xl font-bold">Recipe not found</h1>
@@ -38,6 +40,28 @@ export const Route = createFileRoute("/recipes/$recipeId")({
     </div>
   ),
 })
+
+function RecipeDetailPending() {
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <Skeleton className="h-5 w-32" />
+      <Skeleton className="mt-6 aspect-[2/1] w-full rounded-[24px]" />
+      <Skeleton className="mt-8 h-10 w-2/3" />
+      <Skeleton className="mt-3 h-6 w-full" />
+      <div className="mt-6 flex gap-4">
+        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-5 w-24" />
+      </div>
+      <Skeleton className="mt-10 h-7 w-40" />
+      <div className="mt-4 space-y-2">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-4 w-full" />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 function RecipeDetail() {
   const recipe = Route.useLoaderData()

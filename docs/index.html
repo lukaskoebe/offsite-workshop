@@ -604,16 +604,50 @@
       <section class="step">
         <div class="step__head">
           <div class="step__num">6</div>
+          <h2 class="step__title font-serif">Add your workshop API key</h2>
+        </div>
+        <div class="step__body">
+          <p>
+            The coding agent needs an access token (you'll be given one for the
+            workshop). Move into the project folder, create your private settings
+            file from the template, and open it:
+          </p>
+          <div class="code">
+            <pre><code><span class="prompt">cd</span> offsite-workshop
+cp example.env .env
+open -e .env</code></pre>
+            <button class="copy" type="button">Copy</button>
+          </div>
+          <p>
+            A TextEdit window opens showing <kbd>ASKAI_API_TOKEN=</kbd>. Paste
+            your token right after the <kbd>=</kbd> (no spaces, no quotes) so it
+            reads like <kbd>ASKAI_API_TOKEN=sk-…</kbd>. Save with <kbd>⌘</kbd> +
+            <kbd>S</kbd> and close the window.
+          </p>
+          <div class="note">
+            <span class="ico">🔒</span>
+            <span>
+              Your <kbd>.env</kbd> file stays on your machine — it's never shared
+              or uploaded.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 7 -->
+      <section class="step">
+        <div class="step__head">
+          <div class="step__num">7</div>
           <h2 class="step__title font-serif">Start the app</h2>
         </div>
         <div class="step__body">
           <p>
-            Move into the project folder and start everything. The first run
-            downloads a few things, so give it a couple of minutes.
+            Still in the same Terminal window — you're already in the project
+            folder — start everything. The first run downloads a few things, so
+            give it a couple of minutes.
           </p>
           <div class="code">
-            <pre><code><span class="prompt">cd</span> offsite-workshop
-docker compose up</code></pre>
+            <pre><code>docker compose up</code></pre>
             <button class="copy" type="button">Copy</button>
           </div>
           <p>

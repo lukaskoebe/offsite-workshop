@@ -1,5 +1,10 @@
 # Initial Architecture Decisions
 
+> **⚠️ Historical record.** The framework and data-layer decisions below were
+> superseded by [02-migrate-to-fastapi-backend.md](./02-migrate-to-fastapi-backend.md).
+> The app now uses a TanStack Router SPA with a FastAPI backend (no TanStack
+> Start, no Drizzle, no `createServerFn`). This file is kept for context.
+
 ## Stack
 
 - **Framework**: TanStack React Start (TanStack Router + Vite)
