@@ -27,6 +27,9 @@ services:
       - ${RECIPES_PORT:-3000}:3000
     volumes:
       - ./:${PWD:-/opencode}
+      # Keep node_modules in a container-owned volume so the container's
+      # root install doesn't overwrite host file ownership on the bind mount.
+      - recipes_node_modules:${PWD:-/opencode}/node_modules
     depends_on:
       - backend
     environment:
@@ -47,6 +50,9 @@ services:
       - ${BACKEND_PORT:-8001}:8001
     volumes:
       - ./:${PWD:-/opencode}
+      # Keep the uv virtualenv in a container-owned volume so the container's
+      # root install doesn't overwrite host file ownership on the bind mount.
+      - backend_venv:${PWD:-/opencode}/backend/.venv
     command:
       - "bash"
       - "-c"
@@ -54,3 +60,7 @@ services:
           cd "${PWD:-/opencode}/backend"
           pip install uv
           uv run uvicorn main:app --reload --host 0.0.0.0 --port 8001
+
+volumes:
+  recipes_node_modules:
+  backend_venv:
