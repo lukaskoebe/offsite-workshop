@@ -521,11 +521,13 @@
         <div class="step__body">
           <p>
             Homebrew is the package manager we'll use to install Git and Docker.
-            Paste this and press <kbd>Return</kbd>. It may ask for your Mac
-            password (typing stays invisible — that's normal).
+            The <kbd>NONINTERACTIVE=1</kbd> at the front lets it run start to
+            finish without stopping to ask you to confirm. Paste this and press
+            <kbd>Return</kbd> — it will ask once for your Mac password (typing
+            stays invisible — that's normal).
           </p>
           <div class="code">
-            <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
+            <pre><code>NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
             <button class="copy" type="button">Copy</button>
           </div>
           <div class="note warn">
@@ -564,10 +566,11 @@
         <div class="step__body">
           <p>
             Docker runs the app and its backend for you — no other setup
-            required.
+            required. This installs Docker Desktop, which includes Docker
+            Compose.
           </p>
           <div class="code">
-            <pre><code>brew install --cask docker</code></pre>
+            <pre><code>brew install --cask docker-desktop</code></pre>
             <button class="copy" type="button">Copy</button>
           </div>
           <div class="note">
@@ -703,6 +706,42 @@ open -e .env</code></pre>
 eval "$(/opt/homebrew/bin/brew shellenv)"</code></pre>
               <button class="copy" type="button">Copy</button>
             </div>
+          </div>
+        </details>
+
+        <details>
+          <summary><kbd>docker: 'compose' is not a docker command</kbd></summary>
+          <div class="answer">
+            Your <kbd>docker</kbd> command can't find Compose, which ships with
+            Docker Desktop. Work through these in order:
+            <ol style="margin: 0.6rem 0; padding-left: 1.2rem">
+              <li style="margin: 0.5rem 0">
+                Make sure Docker Desktop is installed:
+                <div class="code">
+                  <pre><code>brew install --cask docker-desktop</code></pre>
+                  <button class="copy" type="button">Copy</button>
+                </div>
+                Add <kbd>--force</kbd> if Homebrew reports a conflict.
+              </li>
+              <li style="margin: 0.5rem 0">
+                If it says <em>“already installed”</em>, the app just hasn't been
+                opened yet — <strong>launch Docker Desktop</strong> from your
+                Applications folder once (it links the Compose plugin on first
+                run), wait for the whale icon to settle, then check:
+                <div class="code">
+                  <pre><code>docker compose version</code></pre>
+                  <button class="copy" type="button">Copy</button>
+                </div>
+              </li>
+              <li style="margin: 0.5rem 0">
+                Still failing? A separate command-line-only <kbd>docker</kbd> is
+                shadowing Docker Desktop. Remove it, then reopen Docker Desktop:
+                <div class="code">
+                  <pre><code>brew uninstall docker</code></pre>
+                  <button class="copy" type="button">Copy</button>
+                </div>
+              </li>
+            </ol>
           </div>
         </details>
 
