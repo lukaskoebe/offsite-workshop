@@ -69,6 +69,46 @@ def test_delete_missing_returns_404(client):
     assert client.delete("/api/recipes/9999").status_code == 404
 
 
+def test_ai_recipe_ideas(client, monkeypatch):
+    """AI endpoints should be tested with ask_ai mocked — never the live API."""
+    monkeypatch.setattr(main, "ask_ai", lambda *a, **k: "1. Omelette\n2. Frittata")
+    res = client.post("/api/ai/recipe-ideas", json={"ingredients": ["eggs", "cheese"]})
+    assert res.status_code == 200
+    assert "Omelette" in res.json()["suggestions"]
+
+
+def test_ai_recipe_ideas_requires_ingredients(client):
+    assert client.post("/api/ai/recipe-ideas", json={"ingredients": []}).status_code == 422
+
+
+def test_ai_generate_recipe_structured(client, monkeypatch):
+    """Structured endpoint validates the model's JSON against RecipeInput."""
+    fake = {
+        "title": "Cloud Eggs",
+        "description": "Fluffy baked eggs",
+        "image": "",
+        "prepTime": 5,
+        "cookTime": 10,
+        "servings": 2,
+        "difficulty": "easy",
+        "ingredients": ["2 eggs", "salt"],
+        "instructions": ["whip whites", "bake"],
+    }
+    monkeypatch.setattr(main, "ask_ai_json", lambda *a, **k: fake)
+    res = client.post("/api/ai/generate-recipe", json={"idea": "cloud eggs"})
+    assert res.status_code == 200
+    body = res.json()
+    assert body["title"] == "Cloud Eggs"
+    assert body["ingredients"] == ["2 eggs", "salt"]
+
+
+def test_ai_generate_recipe_rejects_bad_shape(client, monkeypatch):
+    """If the model returns the wrong shape, the route fails with 502."""
+    monkeypatch.setattr(main, "ask_ai_json", lambda *a, **k: {"title": "only a title"})
+    res = client.post("/api/ai/generate-recipe", json={"idea": "cloud eggs"})
+    assert res.status_code == 502
+
+
 def test_fresh_install_creates_and_seeds_db():
     """A brand-new checkout has no data/ dir; startup must create and seed it."""
     if main.DB_PATH.parent.exists():

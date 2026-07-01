@@ -72,6 +72,44 @@ The frontend is a TanStack Router SPA (Vite). The backend is a FastAPI app. They
 - Endpoints: `GET /api/recipes`, `GET /api/recipes/{id}`, `POST /api/recipes`, `DELETE /api/recipes/{id}`.
 - **Frontend:** `src/lib/api.ts` is a typed `fetch` client (`listRecipes`, `getRecipe`, `createRecipe`, `deleteRecipe`). Route loaders call it; mutations call `router.invalidate()` to refetch.
 
+### AI Integration
+
+Workshop AI features call the **ask-ai** API, which is **OpenAI-compatible**
+(chat completions). Use the helper — do not hand-roll the HTTP request.
+
+- **Helpers (in `backend/ai.py`):**
+  - `ask_ai(prompt, *, system=None, model=None) -> str` — free-text reply.
+  - `ask_ai_json(prompt, ...) -> Any` — **structured output**: requests JSON mode
+    and parses the reply into Python (with a fallback for fenced/prose output).
+  - Both raise `HTTPException`, so failures surface cleanly from a route.
+- **Worked examples in `backend/main.py`:**
+  - Free text: `POST /api/ai/recipe-ideas` (ingredients → suggestions).
+  - **Structured:** `POST /api/ai/generate-recipe` (idea → a full recipe). This
+    is the pattern for JSON output: `ask_ai_json()` → **validate against a
+    Pydantic model** (`RecipeInput.model_validate(...)`) → return typed JSON.
+    Bad output fails with 502 instead of reaching the client malformed.
+  - Copy either shape for new AI features: Pydantic input → prompt → `ask_ai`/
+    `ask_ai_json` → typed response.
+- **The call it makes:** `POST {ASKAI_API_BASE_URL}/chat/completions` with an
+  OpenAI-style body `{"model", "messages": [{"role", "content"}], "temperature"}`;
+  the reply text is `choices[0].message.content`.
+- **Token handling (important):** the token is held by **one** service, the
+  `ai-proxy` (Caddy, `ai-proxy/Caddyfile`), which injects the
+  `Authorization` header. **The backend and opencode never receive
+  `ASKAI_API_TOKEN`** — under Docker they point at the proxy
+  (`ASKAI_API_BASE_URL=http://ai-proxy:8080/api`). So don't add the token to the
+  backend or read it in code; just call `ask_ai()`.
+- **Environment:**
+  - `ASKAI_API_TOKEN` — held only by the `ai-proxy` service (from `.env`, see
+    `example.env`). Not present in the backend. For native dev that calls the API
+    directly (no proxy), export it and `ask_ai` will send it.
+  - `ASKAI_API_BASE_URL` — Docker sets it to `http://ai-proxy:8080/api`; default
+    is `https://ask-ai.smartclip.net/api`.
+  - `ASKAI_MODEL` — optional; default `vllm/generic` (also `vllm/coding`,
+    `vllm/deepseek`).
+- **Testing:** mock `ask_ai` (see `test_ai_recipe_ideas`) — never call the live
+  API in tests.
+
 ### Routes
 
 - `/` — Recipe list page (with search)
@@ -92,6 +130,7 @@ The frontend is a TanStack Router SPA (Vite). The backend is a FastAPI app. They
 | `src/components/app-layout.tsx` | Sidebar + bottom-nav layout. |
 | `src/styles.css` | Tailwind v4 theme tokens (colors, fonts, radius). |
 | `backend/main.py` | FastAPI app + all endpoints. |
+| `backend/ai.py` | `ask_ai()` helper for the ask-ai API (AI features). |
 | `backend/seed.py` | Sample data + DB reset script. |
 | `backend/test_main.py` | Backend API tests. |
 | `data/recipes.db` | SQLite database (gitignored). |

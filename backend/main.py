@@ -12,8 +12,9 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
+from ai import ask_ai, ask_ai_json
 from seed import init_db, seed_recipes
 
 # Override with RECIPES_DB_PATH (used by tests to point at a temp database).
@@ -157,3 +158,63 @@ def delete_recipe(recipe_id: int) -> Response:
     if cursor.rowcount == 0:
         raise HTTPException(status_code=404, detail="Recipe not found")
     return Response(status_code=204)
+
+
+# --------------------------------------------------------------------------
+# AI features
+#
+# Example endpoint showing how to build an AI feature. It calls the ask-ai API
+# through the `ask_ai` helper (see ai.py) — copy this pattern for other AI
+# features (e.g. "make this recipe vegetarian", "scale to N servings").
+# In tests, mock `ask_ai` instead of calling the live API.
+# --------------------------------------------------------------------------
+
+
+class RecipeIdeasInput(BaseModel):
+    ingredients: list[str] = Field(min_length=1)
+
+
+@app.post("/api/ai/recipe-ideas")
+def recipe_ideas(body: RecipeIdeasInput) -> dict:
+    """Free-text example: suggest recipes from a list of ingredients."""
+    prompt = (
+        "Suggest 3 recipes I could make with these ingredients: "
+        + ", ".join(body.ingredients)
+        + ". For each, give a title and one sentence."
+    )
+    suggestions = ask_ai(prompt, system="You are a concise, helpful chef.")
+    return {"suggestions": suggestions}
+
+
+class RecipeIdeaPrompt(BaseModel):
+    idea: str = Field(min_length=1)
+
+
+@app.post("/api/ai/generate-recipe")
+def generate_recipe(body: RecipeIdeaPrompt) -> RecipeInput:
+    """Structured-output example: turn a short idea into a full recipe.
+
+    The pattern for reliable structured AI output:
+      1. Ask for JSON (`ask_ai_json` requests JSON mode).
+      2. Describe the exact shape you want in the prompt.
+      3. Validate the parsed JSON against a Pydantic model (`RecipeInput`), so
+         the route returns typed data the frontend can use directly — e.g. to
+         prefill the add-recipe form. Bad output fails loudly (502) instead of
+         reaching the client malformed.
+    """
+    prompt = (
+        f"Create a recipe for: {body.idea}.\n"
+        "Return a JSON object with exactly these keys: "
+        'title (string), description (string), image (string, use ""), '
+        "prepTime (integer minutes), cookTime (integer minutes), "
+        "servings (integer), difficulty (one of \"easy\", \"medium\", \"hard\"), "
+        "ingredients (array of strings), instructions (array of strings)."
+    )
+    data = ask_ai_json(prompt, system="You are a chef that replies with strict JSON only.")
+    try:
+        return RecipeInput.model_validate(data)
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"AI returned an unexpected recipe shape: {exc.errors()}",
+        ) from exc

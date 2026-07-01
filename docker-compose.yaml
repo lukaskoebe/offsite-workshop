@@ -15,8 +15,10 @@ services:
       - host.docker.internal:172.17.0.1
     user: "${UID:-1000}:${GID:-1000}"
 
-    # cp example.env .env
-    env_file: .env
+    # No token here — opencode reaches the ask-ai API through ai-proxy, which
+    # injects it (see opencode/opencode.json baseURL + ai-proxy/Caddyfile).
+    depends_on:
+      - ai-proxy
     entrypoint: ["/home/node/.opencode/bin/opencode", "serve", "--hostname", "0.0.0.0"]
 
     environment:
@@ -51,6 +53,12 @@ services:
     image: python:3.13-slim
     ports:
       - ${BACKEND_PORT:-8001}:8001
+    environment:
+      # AI features call the proxy, which injects the token; the backend itself
+      # never receives ASKAI_API_TOKEN (see backend/ai.py, ai-proxy/Caddyfile).
+      ASKAI_API_BASE_URL: http://ai-proxy:8080/api
+    depends_on:
+      - ai-proxy
     volumes:
       - ./:${PWD:-/opencode}
       # Keep the uv virtualenv in a container-owned volume so the container's
@@ -63,6 +71,14 @@ services:
           cd "${PWD:-/opencode}/backend"
           pip install uv
           uv run uvicorn main:app --reload --host 0.0.0.0 --port 8001
+  ai-proxy:
+    image: caddy:2
+    # The only service that holds ASKAI_API_TOKEN. It injects the Authorization
+    # header and forwards to the ask-ai API, so opencode and the backend never
+    # see the token. See ai-proxy/Caddyfile.
+    env_file: .env
+    volumes:
+      - ./ai-proxy/Caddyfile:/etc/caddy/Caddyfile:ro
 
 volumes:
   recipes_node_modules:

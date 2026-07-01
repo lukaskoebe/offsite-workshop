@@ -9,8 +9,8 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "ask-ai",
       "options": {
-        "baseURL": "https://ask-ai.smartclip.net/api",
-        "apiKey": "{env:ASKAI_API_TOKEN}"
+        "baseURL": "http://ai-proxy:8080/api",
+        "apiKey": "proxy-injects-token"
       },
       "models": {
         "vllm/generic": {

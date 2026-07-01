@@ -1,0 +1,22 @@
+# Auth-injecting proxy for the ask-ai API.
+#
+# This is the ONLY service that holds ASKAI_API_TOKEN. opencode and the backend
+# send requests here with no token; the proxy adds the Authorization header and
+# forwards to the real API. That keeps the token out of the coding agent's and
+# the backend's environment.
+
+{
+	admin off
+	auto_https off
+}
+
+:8080 {
+	reverse_proxy https://ask-ai.smartclip.net {
+		header_up Host ask-ai.smartclip.net
+		# The client hop is plain HTTP; tell the upstream it's HTTPS so it
+		# doesn't 308-redirect back to https://<our-host>.
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host ask-ai.smartclip.net
+		header_up Authorization "Bearer {$ASKAI_API_TOKEN}"
+	}
+}
