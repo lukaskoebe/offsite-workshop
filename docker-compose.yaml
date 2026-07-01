@@ -8,6 +8,9 @@ services:
       # - ./opencode/cache/:/home/node/.cache/opencode/
       - ./opencode/share/:/home/node/.local/share/opencode
       - ./opencode/opencode.json:/home/node/.config/opencode/opencode.json
+    # Start opencode in the mounted project directory so it opens this project
+    # automatically (`opencode serve` uses its working directory as the project).
+    working_dir: ${PWD:-/opencode}
     extra_hosts:
       - host.docker.internal:172.17.0.1
     user: "${UID:-1000}:${GID:-1000}"
