@@ -7,11 +7,14 @@ Run with:  uv run uvicorn main:app --reload --port 8001
 import json
 import os
 import sqlite3
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel, Field
+
+from seed import init_db, seed_recipes
 
 # Override with RECIPES_DB_PATH (used by tests to point at a temp database).
 DB_PATH = Path(
@@ -21,12 +24,40 @@ DB_PATH = Path(
     )
 )
 
+
+def ensure_db() -> None:
+    """Make sure the database exists and has data.
+
+    On a fresh checkout the `data/` directory and SQLite file don't exist yet
+    (the DB is gitignored), so opening it would fail with "unable to open
+    database file". Create the directory + table, and seed sample recipes if
+    the table is empty.
+    """
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        init_db(conn)
+        (count,) = conn.execute("SELECT COUNT(*) FROM recipes").fetchone()
+        if count == 0:
+            seed_recipes(conn)
+        conn.commit()
+    finally:
+        conn.close()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ensure_db()
+    yield
+
+
 # Serve the interactive API docs under /api so they're reachable through the
 # Vite dev proxy (http://localhost:3000/api/docs).
 app = FastAPI(
     title="Recipe Book API",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
+    lifespan=lifespan,
 )
 
 

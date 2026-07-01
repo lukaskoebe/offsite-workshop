@@ -1,5 +1,11 @@
 """API tests for the Recipe Book backend."""
 
+import shutil
+
+from fastapi.testclient import TestClient
+
+import main
+
 SAMPLE = {
     "title": "Test Pancakes",
     "description": "Fluffy test pancakes",
@@ -61,3 +67,18 @@ def test_delete_removes_recipe(client):
 
 def test_delete_missing_returns_404(client):
     assert client.delete("/api/recipes/9999").status_code == 404
+
+
+def test_fresh_install_creates_and_seeds_db():
+    """A brand-new checkout has no data/ dir; startup must create and seed it."""
+    if main.DB_PATH.parent.exists():
+        shutil.rmtree(main.DB_PATH.parent)
+    assert not main.DB_PATH.exists()
+
+    # Using TestClient as a context manager runs the app's lifespan (ensure_db).
+    with TestClient(main.app) as fresh_client:
+        res = fresh_client.get("/api/recipes")
+
+    assert res.status_code == 200
+    assert len(res.json()) == 6
+    assert main.DB_PATH.exists()
